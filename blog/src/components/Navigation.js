@@ -55,9 +55,6 @@ const Navigation = () => {
                     <StyledLink to="/register" icon={PersonPlus}>
                       Register
                     </StyledLink>
-                    <StyledLink to="/logout" icon={PersonPlus}>
-                      Logout
-                    </StyledLink>
                   </>
                 ) : (
                   <>

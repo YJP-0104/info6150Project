@@ -14,6 +14,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [Email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -28,17 +29,19 @@ const Register = () => {
 
     const userData = {
       user: username,
+      email: Email,
       pass: password,
     };
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/createorupdate/users`,
+        "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/users",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZjI2YmNmMTdkODMwMjQzZWQ2NTVkMCIsInVzZXJuYW1lIjoiWWFzaCIsImlhdCI6MTcyNzE2MzM0OCwiZXhwIjoxNzI5MzIzMzQ4fQ.ejygD3heL5fwP8Dguvw7_WKowD1wJv9oWPR2uKKtkt4",
           },
           body: JSON.stringify(userData),
         }
@@ -80,6 +83,16 @@ const Register = () => {
                     placeholder="Enter username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="Enter Email"
+                    value={Email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </Form.Group>
