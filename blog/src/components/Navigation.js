@@ -17,6 +17,7 @@ import {
 } from "react-bootstrap-icons";
 
 import Dashboard from "./Dashboard";
+import UserPosts from "./UserPosts";
 import Login from "./Login";
 import Logout from "./Logout";
 import Register from "./Register";
@@ -61,6 +62,10 @@ const Navigation = () => {
                     <StyledLink to="/dashboard" icon={Speedometer2}>
                       Dashboard
                     </StyledLink>
+                    <StyledLink to="/posts" icon={Speedometer2}>
+                      Posts
+                    </StyledLink>
+
                     <StyledLink to="/logout" icon={BoxArrowLeft}>
                       Logout
                     </StyledLink>
@@ -84,6 +89,11 @@ const Navigation = () => {
               path="/logout"
               element={isAuthenticated ? <Logout /> : <Navigate to="/" />}
             />
+            <Route
+              path="/posts"
+              element={isAuthenticated ? <UserPosts /> : <Navigate to="/" />}
+            />
+
             <Route
               path="/note/:id"
               element={isAuthenticated ? <NoteDetail /> : <Navigate to="/" />}
