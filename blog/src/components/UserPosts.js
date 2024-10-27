@@ -1,100 +1,114 @@
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useEffect } from "react";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import ReactQuill from "react-quill";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "react-quill/dist/quill.snow.css";
-const UserPosts = () => {
-  const { isAuthenticated, username, userid } = useSelector(
-    (state) => state.auth
-  );
 
-  const [notes, setNotes] = useState([]); // Ensure notes is initialized as an empty array
+const BlogPostCreator = () => {
+  const { username } = useSelector((state) => state.auth);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [editMode, setEditMode] = useState(false);
-  const [editId, setEditId] = useState(null);
-  //   const navigate = useNavigate();
+
+  // ReactQuill modules configuration with more formatting options
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ font: [] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
+    ],
+  };
+  const stripHtmlTags = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  };
+  const cleanContent = stripHtmlTags(content);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newNote = {
+    const blogPost = {
       title,
-      content,
+      content: cleanContent,
+      timestamp: new Date().toISOString(),
+      date: new Date().toLocaleDateString(),
     };
 
-    const method = editMode ? "PUT" : "POST";
-    const url = editMode
-      ? `https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/users/${editId}`
-      : "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/users";
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
-        },
-        body: JSON.stringify(newNote),
-      });
+      const response = await fetch(
+        "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/blogs",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
+          },
+          body: JSON.stringify(blogPost),
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to submit note");
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Blog post created:", result);
+        setTitle("");
+        setContent("");
+      } else {
+        throw new Error("Failed to create blog post");
       }
-
-      const updatedNotes = await response.json();
-      setNotes(updatedNotes.notes || []); // Ensure updated data is handled safely
-      setTitle("");
-      setContent("");
-      setEditMode(false);
-    } catch (err) {
-      console.error("Error during post submission:", err);
+    } catch (error) {
+      console.error("Error creating blog post:", error);
     }
   };
 
-  // Edit a note
-  //   const handleEdit = (note) => {
-  //     setTitle(note.title);
-  //     setContent(note.content);
-  //     setEditId(note.id);
-  //     setEditMode(true);
-  //   };
-
   return (
-    <Container className="mt-5">
+    <Container className="my-5">
       <Row className="justify-content-center">
-        <Col md={8}>
-          <Card className="shadow-sm mb-4">
+        <Col md={10}>
+          <Card className="shadow">
             <Card.Body>
               <Card.Title className="text-center mb-4">
-                <h2>Welcome {username}, your notes dashboard!</h2>
+                <h2>Create New Blog Post</h2>
+                <p className="text-muted">Welcome, {username}</p>
               </Card.Title>
+
               <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Title</Form.Label>
+                <Form.Group className="mb-4">
+                  <Form.Label>Blog Title</Form.Label>
                   <Form.Control
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter your blog title"
                     required
+                    className="form-control-lg"
                   />
                 </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Content</Form.Label>
+                <Form.Group className="mb-4">
+                  <Form.Label>Blog Content</Form.Label>
                   <ReactQuill
+                    theme="snow"
                     value={content}
                     onChange={setContent}
-                    theme="snow"
-                    required
+                    modules={modules}
+                    placeholder="Write your blog content here..."
+                    style={{ height: "300px", marginBottom: "50px" }}
                   />
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100">
-                  {editMode ? "Update Post" : "Create Post"}
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="lg"
+                  className="w-100 mt-4"
+                >
+                  Publish Blog Post
                 </Button>
               </Form>
             </Card.Body>
@@ -105,4 +119,4 @@ const UserPosts = () => {
   );
 };
 
-export default UserPosts;
+export default BlogPostCreator;

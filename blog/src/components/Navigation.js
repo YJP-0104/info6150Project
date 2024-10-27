@@ -10,10 +10,6 @@ import { useSelector } from "react-redux";
 import { Navbar, Nav, Container, Alert } from "react-bootstrap";
 import {
   House,
-  BoxArrowInRight,
-  PersonPlus,
-  Speedometer2,
-  BoxArrowLeft,
 } from "react-bootstrap-icons";
 
 import Dashboard from "./Dashboard";
@@ -50,23 +46,23 @@ const Navigation = () => {
                     <StyledLink to="/" icon={House}>
                       Home
                     </StyledLink>
-                    <StyledLink to="/login" icon={BoxArrowInRight}>
+                    <StyledLink to="/login">
                       Login
                     </StyledLink>
-                    <StyledLink to="/register" icon={PersonPlus}>
+                    <StyledLink to="/register">
                       Register
                     </StyledLink>
                   </>
                 ) : (
                   <>
-                    <StyledLink to="/dashboard" icon={Speedometer2}>
+                    <StyledLink to="/dashboard">
                       Dashboard
                     </StyledLink>
-                    <StyledLink to="/posts" icon={Speedometer2}>
+                    <StyledLink to="/posts">
                       Posts
                     </StyledLink>
 
-                    <StyledLink to="/logout" icon={BoxArrowLeft}>
+                    <StyledLink to="/logout">
                       Logout
                     </StyledLink>
                   </>
