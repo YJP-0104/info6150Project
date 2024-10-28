@@ -62,15 +62,16 @@ const Dashboard = () => {
     setEditId(note._id);
     setEditMode(true);
   };
+
   const handleSave = async () => {
     try {
       const response = await fetch(
         "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/blogs",
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -82,10 +83,19 @@ const Dashboard = () => {
         }
       );
 
+      // Check response status and log if there’s an error
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Response Error Text:", text);
+        throw new Error(
+          "Failed to update blog. Please check the server response."
+        );
+      }
+
       const result = await response.json();
 
-      if (result.success) {
-        // Update local state
+      if (result.status === "success") {
+        // Update the local state with the new blog data
         setNotes((prevNotes) =>
           prevNotes.map((note) =>
             note._id === editId ? { ...note, title, content } : note
@@ -98,17 +108,16 @@ const Dashboard = () => {
         setTitle("");
         setContent("");
 
-        // Refresh notes
+        // Optionally refetch the notes
         await fetchNotes();
       } else {
-        throw new Error(result.message || "Failed to update blog");
+        throw new Error("Failed to update blog");
       }
     } catch (error) {
       console.error("Error updating blog:", error);
       alert("Update failed: " + error.message);
     }
   };
-
   const handleDelete = async (id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/deleteOne/blogs/${id}`, {
