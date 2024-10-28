@@ -9,8 +9,8 @@ const BlogPostCreator = () => {
   const { username } = useSelector((state) => state.auth);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
 
-  // ReactQuill modules configuration with more formatting options
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -37,6 +37,7 @@ const BlogPostCreator = () => {
       content: cleanContent,
       timestamp: new Date().toISOString(),
       date: new Date().toLocaleDateString(),
+      tags: tags.split(",").map((tag) => tag.trim()),
     };
 
     try {
@@ -58,6 +59,7 @@ const BlogPostCreator = () => {
         console.log("Blog post created:", result);
         setTitle("");
         setContent("");
+        setTags("");
       } else {
         throw new Error("Failed to create blog post");
       }
@@ -101,7 +103,19 @@ const BlogPostCreator = () => {
                     style={{ height: "300px", marginBottom: "50px" }}
                   />
                 </Form.Group>
-
+                <Form.Group className="mb-4">
+                  <Form.Label>Tags</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="Enter tags separated by commas (e.g., technology, programming, web)"
+                    className="form-control-lg"
+                  />
+                  <Form.Text className="text-muted">
+                    Separate tags with commas to help categorize your post
+                  </Form.Text>
+                </Form.Group>
                 <Button
                   variant="primary"
                   type="submit"

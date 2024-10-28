@@ -1,7 +1,15 @@
 // import { useSelector } from "react-redux";
 // import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  Badge,
+} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -13,6 +21,7 @@ const Dashboard = () => {
   const [content, setContent] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [tags, setTags] = useState("");
 
   const modules = {
     toolbar: [
@@ -60,6 +69,7 @@ const Dashboard = () => {
     setTitle(note.title || "");
     setContent(note.content || "");
     setEditId(note._id);
+    setTags(note.tags?.join(", ") || "");
     setEditMode(true);
   };
 
@@ -77,6 +87,7 @@ const Dashboard = () => {
           body: JSON.stringify({
             _id: editId,
             title: title,
+            tags: tags.split(",").map((tag) => tag.trim()),
             content: content,
             timestamp: new Date().toISOString(),
           }),
@@ -163,6 +174,18 @@ const Dashboard = () => {
                     required
                   />
                 </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Tags</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="Enter tags separated by commas"
+                  />
+                  <Form.Text className="text-muted">
+                    Separate tags with commas (e.g., technology, programming)
+                  </Form.Text>
+                </Form.Group>
                 <Button
                   variant="success"
                   className="mt-3 me-2"
@@ -194,6 +217,13 @@ const Dashboard = () => {
                       : "No content available."}
                     ...
                   </Card.Text>
+                  <div className="mb-3">
+                    {note.tags?.map((tag, index) => (
+                      <Badge bg="secondary" className="me-2" key={index}>
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
                   <Button
                     variant="outline-primary"
                     className="me-2"
