@@ -1,5 +1,3 @@
-// import { useSelector } from "react-redux";
-// import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -15,7 +13,6 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 const Dashboard = () => {
-  // const { username } = useSelector((state) => state.auth);
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -36,20 +33,19 @@ const Dashboard = () => {
     ],
   };
 
-  const API_BASE_URL =
-    "https://smooth-comfort-405104.uc.r.appspot.com/document";
-  const AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I";
-
   const fetchNotes = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/findAll/blogs`, {
-        method: "GET",
-        headers: {
-          Authorization: AUTH_TOKEN,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://smooth-comfort-405104.uc.r.appspot.com/document/findAll/blogs",
+        {
+          method: "GET",
+          headers: {
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", // Replace with your actual token
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to fetch notes");
 
@@ -73,71 +69,84 @@ const Dashboard = () => {
     setEditMode(true);
   };
 
-  const handleSave = async () => {
+  const updateBlog = async (blogId, updatedData) => {
     try {
       const response = await fetch(
-        "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/blogs",
+        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/blogs/${blogId}`, // Include blogId in the URL
         {
-          method: "PUT",
+          method: "PUT", // Use PUT for full updates
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
             "Content-Type": "application/json",
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", // Include your token if required
           },
-          body: JSON.stringify({
-            _id: editId,
-            title: title,
-            tags: tags.split(",").map((tag) => tag.trim()),
-            content: content,
-            timestamp: new Date().toISOString(),
-          }),
+          body: JSON.stringify(updatedData),
         }
       );
 
-      // Check response status and log if there’s an error
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Response Error Text:", text);
-        throw new Error(
-          "Failed to update blog. Please check the server response."
-        );
-      }
+      const data = await response.json();
 
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Update the local state with the new blog data
-        setNotes((prevNotes) =>
-          prevNotes.map((note) =>
-            note._id === editId ? { ...note, title, content } : note
-          )
-        );
-
-        // Reset form
-        setEditMode(false);
-        setEditId(null);
-        setTitle("");
-        setContent("");
-
-        // Optionally refetch the notes
-        await fetchNotes();
+      if (response.ok) {
+        console.log("Update successful:", data);
+        return data; // Return the updated blog data
       } else {
-        throw new Error("Failed to update blog");
+        console.error("Update failed:", data.message);
+        throw new Error(data.message || "Failed to update blog.");
       }
     } catch (error) {
-      console.error("Error updating blog:", error);
+      console.error("Error during update:", error);
+      throw error; // Propagate the error to be handled elsewhere
+    }
+  };
+  const stripHtmlTags = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  };
+  const cleanContent = stripHtmlTags(content);
+  const handleSave = async () => {
+    const updatedData = {
+      title,
+      content: cleanContent,
+      tags: tags.split(",").map((tag) => tag.trim()),
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      const result = await updateBlog(editId, updatedData);
+
+      // Update the local state with the new blog data
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note._id === editId ? { ...note, ...updatedData } : note
+        )
+      );
+
+      // Reset form
+      setEditMode(false);
+      setEditId(null);
+      setTitle("");
+      setContent("");
+      setTags("");
+
+      console.log("Blog updated successfully:", result);
+    } catch (error) {
       alert("Update failed: " + error.message);
     }
   };
+
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteOne/blogs/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: AUTH_TOKEN,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://smooth-comfort-405104.uc.r.appspot.com/document/deleteOne/blogs/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", // Replace with your actual token
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to delete the note");
 
@@ -200,6 +209,7 @@ const Dashboard = () => {
                     setEditMode(false);
                     setTitle("");
                     setContent("");
+                    setTags("");
                   }}
                 >
                   Cancel
