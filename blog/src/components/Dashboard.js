@@ -13,7 +13,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 const Dashboard = () => {
-  const [notes, setNotes] = useState([]);
+  const [posts, setposts] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [editMode, setEditMode] = useState(false);
@@ -32,8 +32,8 @@ const Dashboard = () => {
       ["clean"],
     ],
   };
-
-  const fetchNotes = async () => {
+// Get Posts from the Api
+  const fetchposts = async () => {
     try {
       const response = await fetch(
         "http://smooth-comfort-405104.uc.r.appspot.com/document/findAll/blogs",
@@ -41,24 +41,24 @@ const Dashboard = () => {
           method: "GET",
           headers: {
             Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", // Replace with your actual token
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", 
             "Content-Type": "application/json",
           },
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch notes");
+      if (!response.ok) throw new Error("Failed to fetch posts");
 
       const result = await response.json();
-      setNotes(result.data || []);
+      setposts(result.data || []);
     } catch (error) {
-      console.error("Error fetching notes:", error);
-      setNotes([]);
+      console.error("Error fetching posts:", error);
+      setposts([]);
     }
   };
 
   useEffect(() => {
-    fetchNotes();
+    fetchposts();
   }, []);
 
   const handleEdit = (note) => {
@@ -72,13 +72,13 @@ const Dashboard = () => {
   const updateBlog = async (blogId, updatedData) => {
     try {
       const response = await fetch(
-        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/blogs/${blogId}`, // Include blogId in the URL
+        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/blogs/${blogId}`, 
         {
-          method: "PUT", // Use PUT for full updates
+          method: "PUT", 
           headers: {
             "Content-Type": "application/json",
             Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", // Include your token if required
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
           },
           body: JSON.stringify(updatedData),
         }
@@ -88,14 +88,14 @@ const Dashboard = () => {
 
       if (response.ok) {
         console.log("Update successful:", data);
-        return data; // Return the updated blog data
+        return data;
       } else {
         console.error("Update failed:", data.message);
         throw new Error(data.message || "Failed to update blog.");
       }
     } catch (error) {
       console.error("Error during update:", error);
-      throw error; // Propagate the error to be handled elsewhere
+      throw error; 
     }
   };
   const stripHtmlTags = (html) => {
@@ -114,14 +114,14 @@ const Dashboard = () => {
     try {
       const result = await updateBlog(editId, updatedData);
 
-      // Update the local state with the new blog data
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
+     
+      setposts((prevposts) =>
+        prevposts.map((note) =>
           note._id === editId ? { ...note, ...updatedData } : note
         )
       );
 
-      // Reset form
+
       setEditMode(false);
       setEditId(null);
       setTitle("");
@@ -150,8 +150,8 @@ const Dashboard = () => {
 
       if (!response.ok) throw new Error("Failed to delete the note");
 
-      // Fetch updated notes after deletion
-      await fetchNotes();
+      // Fetch updated posts after deletion
+      await fetchposts();
     } catch (error) {
       console.error("Error deleting note:", error);
     }
@@ -216,8 +216,8 @@ const Dashboard = () => {
                 </Button>
               </Card.Body>
             </Card>
-          ) : notes && notes.length > 0 ? (
-            notes.map((note) => (
+          ) : posts && posts.length > 0 ? (
+            posts.map((note) => (
               <Card className="shadow-sm mb-3" key={note._id}>
                 <Card.Body>
                   <Card.Title>{note.title || "Untitled"}</Card.Title>

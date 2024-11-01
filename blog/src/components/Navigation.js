@@ -8,9 +8,7 @@ import {
 } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Navbar, Nav, Container, Alert } from "react-bootstrap";
-import {
-  House,
-} from "react-bootstrap-icons";
+import { House } from "react-bootstrap-icons";
 
 import Dashboard from "./Dashboard";
 import UserPosts from "./UserPosts";
@@ -19,7 +17,9 @@ import Logout from "./Logout";
 import Register from "./Register";
 import Home from "./Home";
 import NoteDetail from "./NoteDetails";
-
+import AdminLogin from "./loginAdmin";
+import AdminDashboard from "./AdminDashboard";
+import RegisterAdmin from "./RegisterAdmin";
 const Navigation = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
@@ -41,29 +41,24 @@ const Navigation = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto">
+                <StyledLink to="/" icon={House}>
+                  Home
+                </StyledLink>
                 {!isAuthenticated ? (
                   <>
-                    <StyledLink to="/" icon={House}>
-                      Home
-                    </StyledLink>
-                    <StyledLink to="/login">
-                      Login
-                    </StyledLink>
-                    <StyledLink to="/register">
-                      Register
-                    </StyledLink>
+                    <StyledLink to="/login">Login</StyledLink>
+                    <StyledLink to="/register">Register</StyledLink>
+                    <StyledLink to="/loginAdmin">Admin</StyledLink>
+                    <StyledLink to="/RegisterAdmin">RegisterAdmin</StyledLink>
                   </>
                 ) : (
                   <>
-                    <StyledLink to="/dashboard">
-                      Dashboard
-                    </StyledLink>
-                    <StyledLink to="/posts">
-                      Posts
-                    </StyledLink>
+                    <StyledLink to="/dashboard">Dashboard</StyledLink>
+                    <StyledLink to="/posts">Posts</StyledLink>
+                    <StyledLink to="/logout">Logout</StyledLink>
 
-                    <StyledLink to="/logout">
-                      Logout
+                    <StyledLink to="/AdminDashboard">
+                      Admin Dashboard
                     </StyledLink>
                   </>
                 )}
@@ -77,6 +72,8 @@ const Navigation = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<Home />} />
+            <Route path="/loginAdmin" element={<AdminLogin />} />
+            <Route path="/RegisterAdmin" element={<RegisterAdmin />}></Route>
             <Route
               path="/dashboard"
               element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
@@ -89,7 +86,12 @@ const Navigation = () => {
               path="/posts"
               element={isAuthenticated ? <UserPosts /> : <Navigate to="/" />}
             />
-
+            <Route
+              path="/AdminDashboard"
+              element={
+               <AdminDashboard /> 
+              }
+            />
             <Route
               path="/note/:id"
               element={isAuthenticated ? <NoteDetail /> : <Navigate to="/" />}

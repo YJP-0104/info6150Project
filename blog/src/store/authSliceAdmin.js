@@ -17,7 +17,7 @@ const authAdminSlice = createSlice({
       state.isAuthenticated = false;
       state.username = "";
       state.userid = 0;
-      localStorage.setItem("isAuthenticatedAdmin", "false"); // Update logout status
+      localStorage.removeItem("isAuthenticatedAdmin");
     },
   },
   extraReducers: (builder) => {
@@ -29,16 +29,13 @@ const authAdminSlice = createSlice({
       .addCase(validateLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-
-        // Ensure these properties match your API response structure
-        state.username = action.payload.username || "-";
-        state.userid = action.payload._id || 0;
-
+        state.username = action.payload.username; // Ensure this matches your API response
+        state.userid = action.payload._id; // Ensure this matches your API response
         localStorage.setItem("isAuthenticatedAdmin", "true");
       })
       .addCase(validateLogin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "An unknown error occurred.";
+        state.error = action.payload || "An unknown error occurred."; // Fallback error message
       });
   },
 });

@@ -15,7 +15,7 @@ import "react-quill/dist/quill.snow.css";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
 const Home = () => {
-  const [notes, setNotes] = useState([]);
+  const [posts, setposts] = useState([]);
   const user = useSelector((state) => state.auth);
   const { username } = useSelector((state) => state.auth);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,33 +36,12 @@ const Home = () => {
   };
   // Fetch posts with filtering
   useEffect(() => {
-    fetchNotes();
+    fetchposts();
     fetchUsers();
   }, [filter]);
 
-  const handleShowPost = (post) => {
-    setSelectedPost(post);
-    setShowModal(true);
-    fetchComments(post._id);
-  };
-
-  const fetchComments = async (postId) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/findAll/comments/${postId}`,
-        {
-          headers: {
-            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
-          },
-        }
-      );
-      const result = await response.json();
-      setComments({ ...comments, [postId]: result.data || [] });
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    }
-  };
-  const fetchNotes = async () => {
+  // Get Posts from the Api
+  const fetchposts = async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/findAll/blogs`,
@@ -76,10 +55,10 @@ const Home = () => {
       );
 
       const result = await response.json();
-      setNotes(result.data || []);
+      setposts(result.data || []);
     } catch (error) {
-      console.error("Error fetching notes:", error);
-      setNotes([]);
+      console.error("Error fetching posts:", error);
+      setposts([]);
     }
   };
   const formatDate = (timestamp) => {
@@ -89,7 +68,7 @@ const Home = () => {
       return "Recent";
     }
   };
-
+  // Get User from the Api
   const fetchUsers = async () => {
     try {
       const response = await fetch(
@@ -107,13 +86,30 @@ const Home = () => {
       console.error("Error fetching users:", error);
     }
   };
+  // Get Comments from the Api
+  const fetchComments = async (postId) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/findAll/comments/${postId}`,
+        {
+          headers: {
+            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+          },
+        }
+      );
+      const result = await response.json();
+      setComments({ ...comments, [postId]: result.data || [] });
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
 
   const stripHtmlTags = (html) => {
     const doc = new DOMParser().parseFromString(html, "text/html");
     return doc.body.textContent || "";
   };
   const cleanContent = stripHtmlTags(comment);
-
+  // Store comments to the Api
   const handleComment = async (postId) => {
     try {
       const commentData = {
@@ -147,11 +143,18 @@ const Home = () => {
       console.error("Error posting comment:", error);
     }
   };
+
+  const handleShowPost = (post) => {
+    setSelectedPost(post);
+    setShowModal(true);
+    fetchComments(post._id);
+  };
+
   // Pagination logic
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = notes.slice(indexOfFirstPost, indexOfLastPost);
-  const totalPages = Math.ceil(notes.length / postsPerPage);
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(posts.length / postsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
