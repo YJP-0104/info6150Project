@@ -31,7 +31,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, isAuthenticated, userId } = useSelector(
+  const { loading, error, isAuthenticated, userId, user } = useSelector(
     (state) => state.auth
   );
 
@@ -52,7 +52,7 @@ const Login = () => {
 
   const handleUpdatePassword = async () => {
     if (newPassword.length < 8) {
-      alert("Password must be at least 8 characters long and strong.");
+      alert("Password must be at least 8 characters long.");
       return;
     }
     try {
@@ -75,17 +75,13 @@ const Login = () => {
 
       if (response.ok) {
         setShowModal(false);
-        alert("Password updated successfully");
+        alert("Password updated successfully.");
       } else {
-        alert(
-          data.message || "Error updating password. Please check your username."
-        );
+        alert(data.message || "Error updating password.");
       }
     } catch (error) {
       console.error("Error updating password:", error);
-      alert(
-        "There was a problem updating your password. Please try again later."
-      );
+      alert("There was a problem updating your password.");
     }
   };
 
@@ -147,6 +143,7 @@ const Login = () => {
                     </Button>
                   </InputGroup>
                 </Form.Group>
+
                 <div className="d-grid">
                   <Button
                     variant="primary"
@@ -173,16 +170,6 @@ const Login = () => {
                 </div>
 
                 <div className="text-center mt-4">
-                  <p className="text-muted mb-0">
-                    Don't have an account?{" "}
-                    <Button
-                      variant="link"
-                      className="p-0 ms-1"
-                      onClick={() => navigate("/register")}
-                    >
-                      Register here
-                    </Button>
-                  </p>
                   <Button
                     variant="link"
                     className="p-0 ms-1"
@@ -200,12 +187,14 @@ const Login = () => {
                 <Modal.Body>
                   <Form.Group className="mb-3">
                     <Form.Label>Username</Form.Label>
+                    <Form.Control type="text" value={username} disabled />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Email</Form.Label>
                     <Form.Control
-                      type="text"
-                      placeholder="Enter your username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
+                      type="email"
+                      value={user?.email || ""}
+                      disabled
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">

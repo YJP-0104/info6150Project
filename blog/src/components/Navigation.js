@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Navbar, Nav, Container, Alert } from "react-bootstrap";
-import { House } from "react-bootstrap-icons";
 
 import Dashboard from "./Dashboard";
 import UserPosts from "./UserPosts";
@@ -41,22 +40,17 @@ const Navigation = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto">
-                <StyledLink to="/" icon={House}>
-                  Home
-                </StyledLink>
+                <StyledLink to="/">Home</StyledLink>
                 {!isAuthenticated ? (
                   <>
                     <StyledLink to="/login">Login</StyledLink>
                     <StyledLink to="/register">Register</StyledLink>
-                    <StyledLink to="/loginAdmin">Admin</StyledLink>
                   </>
                 ) : (
                   <>
                     <StyledLink to="/dashboard">Dashboard</StyledLink>
                     <StyledLink to="/posts">Posts</StyledLink>
                     <StyledLink to="/logout">Logout</StyledLink>
-
-                   
                   </>
                 )}
               </Nav>

@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 
 const AdminDashboard = () => {
-  const [users, setUsers] = useState([]); // Initialize as an empty array
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -19,11 +19,10 @@ const AdminDashboard = () => {
 
   const API_URL =
     "https://smooth-comfort-405104.uc.r.appspot.com/document/findAll/users/";
-
   const DELETE_URL =
     "https://smooth-comfort-405104.uc.r.appspot.com/document/deleteOne/users";
   const AUTH_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I"; // Update with your actual token
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I";
 
   useEffect(() => {
     fetchUsers();
@@ -36,13 +35,14 @@ const AdminDashboard = () => {
         method: "GET",
         headers: {
           Authorization: AUTH_KEY,
+          "Content-Type": "application/json",
         },
       });
-
       const data = await response.json();
 
-      // Check if data.data is an array before setting it
+      // Check if data.data is an array and log data structure
       if (Array.isArray(data.data)) {
+        console.log("Fetched Users Data:", data.data); // Log fetched data for debugging
         setUsers(data.data);
       } else {
         setError("Invalid user data received.");
@@ -62,9 +62,10 @@ const AdminDashboard = () => {
           method: "DELETE",
           headers: {
             Authorization: AUTH_KEY,
+            "Content-Type": "application/json",
           },
         });
-        fetchUsers(); // Refresh the list after deletion
+        fetchUsers();
       } catch (error) {
         setError("Failed to delete user.");
       } finally {
@@ -89,33 +90,30 @@ const AdminDashboard = () => {
     const formData = new FormData(e.target);
     const updatedData = Object.fromEntries(formData);
 
-    const userId = selectedUser._id; // Assuming the user ID is in _id field
+    const userId = selectedUser._id;
 
     try {
       const response = await fetch(
-        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/users/${userId}`, // Ensure you're using the correct endpoint
+        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/users/${userId}`,
         {
-          method: "PUT", // Use PUT to update the existing resource
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: AUTH_KEY,
           },
-          body: JSON.stringify(updatedData), // Send only the updated data
+          body: JSON.stringify(updatedData),
         }
       );
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Update successful:", data);
-        fetchUsers(); // Refresh the list after updating
+        fetchUsers();
         handleCloseModal();
       } else {
-        console.error("Update failed:", data.message);
         setError(data.message || "Failed to update user.");
       }
     } catch (error) {
-      console.error("Error during update:", error);
       setError("Error during update.");
     } finally {
       setUpdateLoading(false);
@@ -145,10 +143,10 @@ const AdminDashboard = () => {
             {users.length > 0 ? (
               users.map((user) => (
                 <tr key={user._id}>
-                  <td>{user._id}</td> {/* Displaying the User ID */}
-                  <td>{user.name}</td>
+                  <td>{user._id}</td>
+                  <td>{user.user || "N/A"}</td> {/* Display Name */}
                   <td>{user.email}</td>
-                  <td>{user.password}</td> {/* Displaying the Password */}
+                  <td>{user.pass || "N/A"}</td> {/* Display Password */}
                   <td>
                     <Button
                       variant="warning"
@@ -188,7 +186,7 @@ const AdminDashboard = () => {
               <Form.Control
                 type="text"
                 name="name"
-                defaultValue={selectedUser?.name}
+                defaultValue={selectedUser?.name || ""}
                 required
               />
             </Form.Group>
@@ -197,7 +195,7 @@ const AdminDashboard = () => {
               <Form.Control
                 type="email"
                 name="email"
-                defaultValue={selectedUser?.email}
+                defaultValue={selectedUser?.email || ""}
                 required
               />
             </Form.Group>
@@ -206,7 +204,7 @@ const AdminDashboard = () => {
               <Form.Control
                 type="password"
                 name="password"
-                defaultValue={selectedUser?.password} // If needed
+                defaultValue={selectedUser?.password || ""}
                 required
               />
             </Form.Group>
