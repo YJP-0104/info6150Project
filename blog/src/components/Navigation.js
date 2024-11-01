@@ -19,7 +19,7 @@ import Home from "./Home";
 import NoteDetail from "./NoteDetails";
 import AdminLogin from "./loginAdmin";
 import AdminDashboard from "./AdminDashboard";
-import RegisterAdmin from "./RegisterAdmin";
+
 const Navigation = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
@@ -49,7 +49,6 @@ const Navigation = () => {
                     <StyledLink to="/login">Login</StyledLink>
                     <StyledLink to="/register">Register</StyledLink>
                     <StyledLink to="/loginAdmin">Admin</StyledLink>
-                    <StyledLink to="/RegisterAdmin">RegisterAdmin</StyledLink>
                   </>
                 ) : (
                   <>
@@ -73,7 +72,7 @@ const Navigation = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<Home />} />
             <Route path="/loginAdmin" element={<AdminLogin />} />
-            <Route path="/RegisterAdmin" element={<RegisterAdmin />}></Route>
+
             <Route
               path="/dashboard"
               element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
@@ -86,12 +85,7 @@ const Navigation = () => {
               path="/posts"
               element={isAuthenticated ? <UserPosts /> : <Navigate to="/" />}
             />
-            <Route
-              path="/AdminDashboard"
-              element={
-               <AdminDashboard /> 
-              }
-            />
+            <Route path="/AdminDashboard" element={<AdminDashboard />} />
             <Route
               path="/note/:id"
               element={isAuthenticated ? <NoteDetail /> : <Navigate to="/" />}

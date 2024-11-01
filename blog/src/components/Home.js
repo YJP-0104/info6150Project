@@ -44,11 +44,12 @@ const Home = () => {
   const fetchposts = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/findAll/blogs`,
+        "http://smooth-comfort-405104.uc.r.appspot.com/document/findAll/blogs",
         {
           method: "GET",
           headers: {
-            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
             "Content-Type": "application/json",
           },
         }
@@ -72,10 +73,12 @@ const Home = () => {
   const fetchUsers = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/findAll/users`,
+        "http://smooth-comfort-405104.uc.r.appspot.com/document/findAll/users",
         {
+          method: "GET",
           headers: {
-            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
             "Content-Type": "application/json",
           },
         }
@@ -90,10 +93,12 @@ const Home = () => {
   const fetchComments = async (postId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/findAll/comments/${postId}`,
+        `http://smooth-comfort-405104.uc.r.appspot.com/document/findOne/comments/${postId}`,
         {
+          method: "GET",
           headers: {
-            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
           },
         }
       );
@@ -120,12 +125,13 @@ const Home = () => {
       };
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/createorupdate/comments`,
+        "http://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/comments",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
           },
           body: JSON.stringify(commentData),
         }

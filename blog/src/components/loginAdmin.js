@@ -23,17 +23,17 @@ const AdminLogin = () => {
 
   // Correctly selecting the state slice from authAdminSlice
   const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.authadmin // Ensure `authadmin` matches your combined reducer key
+    (state) => state.authadmin // 
   );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(validateLogin({ username, password })); // Dispatching login action
+    dispatch(validateLogin({ username, password })); 
   };
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/AdminDashboard"); // Redirect if authenticated
+      navigate("/AdminDashboard"); 
     }
   }, [isAuthenticated, navigate]);
 
