@@ -12,8 +12,14 @@ import {
   Card,
   Spinner,
   Modal,
+  InputGroup,
 } from "react-bootstrap";
-import { PersonFill, LockFill } from "react-bootstrap-icons";
+import {
+  PersonFill,
+  LockFill,
+  EyeFill,
+  EyeSlashFill,
+} from "react-bootstrap-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Login = () => {
@@ -21,10 +27,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, isAuthenticated } = useSelector(
+  const { loading, error, isAuthenticated, userId } = useSelector(
     (state) => state.auth
   );
 
@@ -49,22 +56,36 @@ const Login = () => {
       return;
     }
     try {
-      await fetch(
-        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/users/`,
+      const response = await fetch(
+        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/users/${userId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
           },
           body: JSON.stringify({
+            username,
             password: newPassword,
           }),
         }
       );
-      setShowModal(false);
-      alert("Password updated successfully");
+      const data = await response.json();
+
+      if (response.ok) {
+        setShowModal(false);
+        alert("Password updated successfully");
+      } else {
+        alert(
+          data.message || "Error updating password. Please check your username."
+        );
+      }
     } catch (error) {
       console.error("Error updating password:", error);
+      alert(
+        "There was a problem updating your password. Please try again later."
+      );
     }
   };
 
@@ -109,16 +130,23 @@ const Login = () => {
                     <LockFill className="me-2" />
                     Password
                   </Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={loading}
+                      required
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeSlashFill /> : <EyeFill />}
+                    </Button>
+                  </InputGroup>
                 </Form.Group>
-
                 <div className="d-grid">
                   <Button
                     variant="primary"

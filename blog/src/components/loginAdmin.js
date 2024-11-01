@@ -11,29 +11,36 @@ import {
   Alert,
   Card,
   Spinner,
+  InputGroup,
 } from "react-bootstrap";
-import { PersonFill, LockFill } from "react-bootstrap-icons";
+import {
+  PersonFill,
+  LockFill,
+  EyeFill,
+  EyeSlashFill,
+} from "react-bootstrap-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Correctly selecting the state slice from authAdminSlice
   const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.authadmin // 
+    (state) => state.authadmin //
   );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(validateLogin({ username, password })); 
+    dispatch(validateLogin({ username, password }));
   };
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/AdminDashboard"); 
+      navigate("/AdminDashboard");
     }
   }, [isAuthenticated, navigate]);
 
@@ -80,14 +87,22 @@ const AdminLogin = () => {
                     <LockFill className="me-2" />
                     Password
                   </Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={loading}
+                      required
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeSlashFill /> : <EyeFill />}
+                    </Button>
+                  </InputGroup>
                 </Form.Group>
 
                 <div className="d-grid">
