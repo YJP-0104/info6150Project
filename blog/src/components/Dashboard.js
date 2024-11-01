@@ -32,7 +32,7 @@ const Dashboard = () => {
       ["clean"],
     ],
   };
-// Get Posts from the Api
+  // Get Posts from the Api
   const fetchposts = async () => {
     try {
       const response = await fetch(
@@ -41,7 +41,7 @@ const Dashboard = () => {
           method: "GET",
           headers: {
             Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", 
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
             "Content-Type": "application/json",
           },
         }
@@ -72,9 +72,9 @@ const Dashboard = () => {
   const updateBlog = async (blogId, updatedData) => {
     try {
       const response = await fetch(
-        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/blogs/${blogId}`, 
+        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/blogs/${blogId}`,
         {
-          method: "PUT", 
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization:
@@ -95,7 +95,7 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error during update:", error);
-      throw error; 
+      throw error;
     }
   };
   const stripHtmlTags = (html) => {
@@ -114,13 +114,11 @@ const Dashboard = () => {
     try {
       const result = await updateBlog(editId, updatedData);
 
-     
       setposts((prevposts) =>
         prevposts.map((note) =>
           note._id === editId ? { ...note, ...updatedData } : note
         )
       );
-
 
       setEditMode(false);
       setEditId(null);

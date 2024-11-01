@@ -56,9 +56,7 @@ const Navigation = () => {
                     <StyledLink to="/posts">Posts</StyledLink>
                     <StyledLink to="/logout">Logout</StyledLink>
 
-                    <StyledLink to="/AdminDashboard">
-                      Admin Dashboard
-                    </StyledLink>
+                   
                   </>
                 )}
               </Nav>

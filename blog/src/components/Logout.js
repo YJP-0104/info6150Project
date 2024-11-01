@@ -24,7 +24,7 @@ const Logout = () => {
             <Card.Body>
               <Card.Text>Are you sure you want to logout?</Card.Text>
               <Button
-                variant="black"
+                variant="danger"
                 size="lg"
                 onClick={handleLogout}
                 className="px-3"

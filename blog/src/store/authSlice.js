@@ -1,23 +1,25 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { validateLogin } from "./authSliceAdminThunk";
+
+import { validateLogin } from "./authSliceThunk";
 
 const initialState = {
-  isAuthenticated: localStorage.getItem("isAuthenticatedAdmin") === "true",
+  isAuthenticated:
+    localStorage.getItem("isAuthenticated") === "true" ? true : false, // Load from localStorage
   username: "-",
   userid: 0,
   loading: false,
   error: null,
 };
 
-const authAdminSlice = createSlice({
-  name: "authAdmin",
+const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
       state.isAuthenticated = false;
       state.username = "";
       state.userid = 0;
-      localStorage.setItem("isAuthenticatedAdmin", "false"); // Update logout status
+      localStorage.removeItem("isAuthenticated");
     },
   },
   extraReducers: (builder) => {
@@ -29,19 +31,16 @@ const authAdminSlice = createSlice({
       .addCase(validateLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-
-        // Ensure these properties match your API response structure
-        state.username = action.payload.username || "-";
-        state.userid = action.payload._id || 0;
-
-        localStorage.setItem("isAuthenticatedAdmin", "true");
+        state.username = action.payload.user;
+        state.userid = action.payload._id;
+        localStorage.setItem("isAuthenticated", "true");
       })
       .addCase(validateLogin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "An unknown error occurred.";
+        state.error = action.payload;
       });
   },
 });
 
-export const { logout } = authAdminSlice.actions;
-export default authAdminSlice.reducer;
+export const { logout } = authSlice.actions;
+export default authSlice.reducer;
