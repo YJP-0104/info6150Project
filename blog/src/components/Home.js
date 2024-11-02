@@ -53,7 +53,14 @@ const Home = () => {
       );
 
       const result = await response.json();
-      setposts(result.data || []);
+      const fetchedPosts = result.data || [];
+
+      // Sort posts by timestamp in descending order (latest first)
+      fetchedPosts.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+
+      setposts(fetchedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setposts([]);
