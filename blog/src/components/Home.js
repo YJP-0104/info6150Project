@@ -20,10 +20,12 @@ const Home = () => {
   const { username } = useSelector((state) => state.auth);
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const modules = {
     toolbar: [
@@ -65,6 +67,30 @@ const Home = () => {
       console.error("Error fetching posts:", error);
       setposts([]);
     }
+  };
+  useEffect(() => {
+    filterPosts();
+  }, [posts, searchQuery, filter]);
+
+  const filterPosts = () => {
+    let filtered = posts;
+
+    if (filter === "recent") {
+      filtered = [...filtered].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter((post) =>
+        post.content.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredPosts(filtered);
+  };
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   const formatDate = (timestamp) => {
@@ -165,20 +191,20 @@ const Home = () => {
     <Container className="mt-5">
       <Row className="justify-content-center mb-4">
         <Col md={8}>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h3>Community Posts</h3>
-            <Form.Select
-              style={{ width: "200px" }}
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value="all">All Posts</option>
-              <option value="recent">Most Recent</option>
-              <option value="popular">Most Popular</option>
-            </Form.Select>
+          <div className="mb-4">
+            <h3 className="mb-3">Community Posts</h3>{" "}
+            {/* Moved the title above */}
+            <div className="d-flex justify-content-between align-items-center">
+              <Form.Control
+                type="text"
+                placeholder="Search by keyword..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-100" // Makes search bar full-width
+              />
+            </div>
           </div>
-
-          {posts.map((note) => (
+          {filteredPosts.map((note) => (
             <Card className="shadow-sm mb-4" key={note._id}>
               <Card.Body>
                 <Card.Subtitle className="mb-2 text-muted">

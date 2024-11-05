@@ -16,7 +16,7 @@ import {
 } from "react-bootstrap";
 import {
   PersonFill,
-  LockFill,
+  LockFill, 
   EyeFill,
   EyeSlashFill,
 } from "react-bootstrap-icons";
@@ -46,9 +46,9 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleForgotPassword = () => {
-    setShowModal(true);
-  };
+  // const handleForgotPassword = () => {
+  //   setShowModal(true);
+  // };
 
   const handleUpdatePassword = async () => {
     if (newPassword.length < 8) {
@@ -170,13 +170,13 @@ const Login = () => {
                 </div>
 
                 <div className="text-center mt-4">
-                  <Button
+                  {/* <Button
                     variant="link"
                     className="p-0 ms-1"
                     onClick={handleForgotPassword}
                   >
                     Forgot Password?
-                  </Button>
+                  </Button> */}
                 </div>
               </Form>
 
