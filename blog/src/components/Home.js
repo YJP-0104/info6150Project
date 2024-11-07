@@ -17,7 +17,7 @@ import CommentSection from "./Comment";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const { username } = useSelector((state) => state.auth);
+  const { username: currentUser } = useSelector((state) => state.auth);
   const [filter, setFilter] = useState("all");
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -48,10 +48,18 @@ const Home = () => {
 
       const result = await response.json();
       const fetchedPosts = result.data || [];
-      fetchedPosts.sort(
+
+      // Map posts with author information
+      const postsWithAuthors = fetchedPosts.map((post) => ({
+        ...post,
+        displayName: post.author || "Anonymous User",
+      }));
+
+      postsWithAuthors.sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
-      setPosts(fetchedPosts);
+
+      setPosts(postsWithAuthors);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setPosts([]);
@@ -99,7 +107,7 @@ const Home = () => {
   const handleShowPost = (post) => {
     setSelectedPost(post);
     setShowModal(true);
-    setShowComments(false); // Reset comments visibility for new post
+    setShowComments(false);
   };
 
   const handleToggleComments = () => {
@@ -121,21 +129,20 @@ const Home = () => {
             />
           </div>
 
-          {filteredPosts.map((note) => (
-            <Card className="shadow-sm mb-4" key={note._id}>
+          {filteredPosts.map((post) => (
+            <Card className="shadow-sm mb-4" key={post._id}>
               <Card.Body>
                 <Card.Subtitle className="mb-2 text-muted">
-                  Posted by {note.username || username || "Anonymous"} •{" "}
-                  {formatDate(note.timestamp)}
+                  Posted by {post.displayName} • {formatDate(post.timestamp)}
                 </Card.Subtitle>
                 <Card.Text>
-                  {note.content
-                    ? note.content.slice(0, 200) + "..."
+                  {post.content
+                    ? post.content.slice(0, 200) + "..."
                     : "No content available."}
                 </Card.Text>
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    {note.tags?.map((tag, index) => (
+                    {post.tags?.map((tag, index) => (
                       <Badge bg="secondary" className="me-2" key={index}>
                         {tag}
                       </Badge>
@@ -143,7 +150,7 @@ const Home = () => {
                   </div>
                   <Button
                     variant="outline-primary"
-                    onClick={() => handleShowPost(note)}
+                    onClick={() => handleShowPost(post)}
                   >
                     Read More
                   </Button>
@@ -167,8 +174,7 @@ const Home = () => {
                   <div className="mb-4">
                     <div className="d-flex justify-content-between align-items-center">
                       <p className="text-muted mb-2">
-                        Posted by{" "}
-                        {selectedPost.username || username || "Anonymous"}
+                        Posted by {selectedPost.displayName}
                       </p>
                       <small className="text-muted">
                         {formatDate(selectedPost.timestamp)}
@@ -196,7 +202,7 @@ const Home = () => {
 
                   <CommentSection
                     postId={selectedPost._id}
-                    username={username}
+                    username={currentUser}
                     isVisible={showComments}
                   />
                 </Modal.Body>
