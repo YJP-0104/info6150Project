@@ -3,10 +3,9 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Button, Spinner, Card, Container, Alert } from "react-bootstrap";
 
-const CommentSection = ({ postId, username }) => {
+const CommentSection = ({ postId, username, isVisible }) => {
   const [comments, setComments] = useState([]);
   const [commentValue, setCommentValue] = useState("");
-  const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -23,7 +22,6 @@ const CommentSection = ({ postId, username }) => {
     ],
   };
 
-  // Fetch comments for the specific post when comments are shown
   const fetchComments = async () => {
     setLoading(true);
     setError(null);
@@ -86,85 +84,72 @@ const CommentSection = ({ postId, username }) => {
         setComments((prevComments) => [...prevComments, commentData]);
         setCommentValue("");
       } else {
-        console.error("Failed to post comment:", response.statusText);
         setError("Failed to post comment. Please try again.");
       }
     } catch (error) {
-      console.error("Error posting comment:", error);
       setError("Error posting comment. Please try again.");
     }
   };
 
-  // Only fetch comments when the user opens the comment section
   useEffect(() => {
-    if (showComments) {
+    if (isVisible) {
       fetchComments();
     }
-  }, [showComments, postId]);
+  }, [isVisible, postId]);
+
+  if (!isVisible) return null;
 
   return (
     <Container>
-      <Button
-        variant="primary"
-        onClick={() => setShowComments((prev) => !prev)}
-        className="my-3"
-      >
-        {showComments ? "Hide Comments" : "Show Comments"}
-      </Button>
-
-      {showComments && (
-        <Container className="mt-3">
-          {loading ? (
-            <Spinner animation="border" className="d-block mx-auto my-3" />
-          ) : (
-            <>
-              {error && (
-                <Alert variant="danger" className="text-center">
-                  {error}
-                </Alert>
-              )}
-              <h5 className="text-primary mb-4">Comments</h5>
-              {comments.length > 0 ? (
-                comments.map((comment, index) => (
-                  <Card className="p-3 mb-3 shadow-sm" key={index}>
-                    <Card.Title className="text-muted">
-                      <strong>{comment.username}</strong>
-                    </Card.Title>
-                    <Card.Text
-                      dangerouslySetInnerHTML={{ __html: comment.content }}
-                    />
-                    <Card.Footer
-                      className="text-muted text-end"
-                      style={{ fontSize: "0.85rem" }}
-                    >
-                      {new Date(comment.timestamp).toLocaleString()}
-                    </Card.Footer>
-                  </Card>
-                ))
-              ) : (
-                <p className="text-muted">
-                  No comments yet. Be the first to comment!
-                </p>
-              )}
-              <ReactQuill
-                value={commentValue}
-                onChange={setCommentValue}
-                modules={modules}
-                theme="snow"
-                placeholder="Write your comment here..."
-                className="my-3"
-              />
-              <Button
-                variant="success"
-                onClick={handleComment}
-                className="my-2 d-block mx-auto"
-                disabled={!commentValue.trim()}
-              >
-                Post Comment
-              </Button>
-            </>
+      {loading ? (
+        <Spinner animation="border" className="d-block mx-auto my-3" />
+      ) : (
+        <>
+          {error && (
+            <Alert variant="danger" className="text-center">
+              {error}
+            </Alert>
           )}
-        </Container>
+          <h5 className="text-primary mb-4">Comments</h5>
+          {comments.length > 0 ? (
+            comments.map((comment, index) => (
+              <Card className="p-3 mb-3 shadow-sm" key={index}>
+                <Card.Title className="text-muted">
+                  <strong>{comment.username}</strong>
+                </Card.Title>
+                <Card.Text
+                  dangerouslySetInnerHTML={{ __html: comment.content }}
+                />
+                <Card.Footer
+                  className="text-muted text-end"
+                  style={{ fontSize: "0.85rem" }}
+                >
+                  {new Date(comment.timestamp).toLocaleString()}
+                </Card.Footer>
+              </Card>
+            ))
+          ) : (
+            <p className="text-muted">
+              No comments yet. Be the first to comment!
+            </p>
+          )}
+          <ReactQuill
+            value={commentValue}
+            onChange={setCommentValue}
+            modules={modules}
+            theme="snow"
+            placeholder="Write your comment here..."
+            className="my-3"
+          />
+          <Button
+            variant="success"
+            onClick={handleComment}
+            className="my-2 d-block mx-auto"
+            disabled={!commentValue.trim()}
+          >
+            Post Comment
+          </Button>
+        </>
       )}
     </Container>
   );

@@ -12,9 +12,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [posts, setposts] = useState([]);
+  const { isAuthenticated, token, userid } = useSelector((state) => state.auth);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [editMode, setEditMode] = useState(false);
@@ -34,6 +37,13 @@ const Dashboard = () => {
     ],
   };
   // Get Posts from the Api
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
   const fetchposts = async () => {
     try {
       const response = await fetch(
@@ -41,8 +51,7 @@ const Dashboard = () => {
         {
           method: "GET",
           headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
+            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
             "Content-Type": "application/json",
           },
         }
@@ -51,7 +60,9 @@ const Dashboard = () => {
       if (!response.ok) throw new Error("Failed to fetch posts");
 
       const result = await response.json();
-      setposts(result.data || []);
+      // Filter posts to show only the logged-in user's posts
+      const userPosts = result.data.filter((post) => post.userId === userid);
+      setposts(userPosts || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setposts([]);
@@ -59,8 +70,10 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchposts();
-  }, []);
+    if (isAuthenticated) {
+      fetchposts();
+    }
+  }, [isAuthenticated, token]);
 
   const handleEdit = (note) => {
     setTitle(note.title || "");
@@ -78,13 +91,14 @@ const Dashboard = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
+            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify({
+            ...updatedData,
+            userId: userid, // Add userId to track post ownership
+          }),
         }
       );
-
       const data = await response.json();
 
       if (response.ok) {
@@ -94,11 +108,13 @@ const Dashboard = () => {
         console.error("Update failed:", data.message);
         throw new Error(data.message || "Failed to update blog.");
       }
+      // Rest of the update logic
     } catch (error) {
       console.error("Error during update:", error);
       throw error;
     }
   };
+
   const stripHtmlTags = (html) => {
     const doc = new DOMParser().parseFromString(html, "text/html");
     return doc.body.textContent || "";
@@ -140,19 +156,16 @@ const Dashboard = () => {
         {
           method: "DELETE",
           headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I", // Replace with your actual token
+            Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
             "Content-Type": "application/json",
           },
         }
       );
 
-      if (!response.ok) throw new Error("Failed to delete the note");
-
-      // Fetch updated posts after deletion
+      if (!response.ok) throw new Error("Failed to delete the post");
       await fetchposts();
     } catch (error) {
-      console.error("Error deleting note:", error);
+      console.error("Error deleting post:", error);
     }
   };
 

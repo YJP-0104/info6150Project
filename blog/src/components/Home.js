@@ -13,17 +13,17 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
-import CommentSection from "./Comment"; // Import the CommentSection component
+import CommentSection from "./Comment";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const user = useSelector((state) => state.auth);
   const { username } = useSelector((state) => state.auth);
   const [filter, setFilter] = useState("all");
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showComments, setShowComments] = useState(false);
 
   const modules = {
     toolbar: [
@@ -32,10 +32,6 @@ const Home = () => {
       ["link"],
     ],
   };
-
-  useEffect(() => {
-    fetchPosts();
-  }, [filter]);
 
   const fetchPosts = async () => {
     try {
@@ -61,6 +57,10 @@ const Home = () => {
       setPosts([]);
     }
   };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [filter]);
 
   useEffect(() => {
     filterPosts();
@@ -99,6 +99,11 @@ const Home = () => {
   const handleShowPost = (post) => {
     setSelectedPost(post);
     setShowModal(true);
+    setShowComments(false); // Reset comments visibility for new post
+  };
+
+  const handleToggleComments = () => {
+    setShowComments(!showComments);
   };
 
   return (
@@ -107,16 +112,15 @@ const Home = () => {
         <Col md={8}>
           <div className="mb-4">
             <h3 className="mb-3">Community Posts</h3>
-            <div className="d-flex justify-content-between align-items-center">
-              <Form.Control
-                type="text"
-                placeholder="Search by keyword..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-100"
-              />
-            </div>
+            <Form.Control
+              type="text"
+              placeholder="Search by keyword..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-100"
+            />
           </div>
+
           {filteredPosts.map((note) => (
             <Card className="shadow-sm mb-4" key={note._id}>
               <Card.Body>
@@ -181,10 +185,19 @@ const Home = () => {
                       ))}
                     </div>
                   </div>
-                  {/* Integrate the new CommentSection here */}
+
+                  <Button
+                    variant="primary"
+                    onClick={handleToggleComments}
+                    className="mb-3"
+                  >
+                    {showComments ? "Hide Comments" : "Show Comments"}
+                  </Button>
+
                   <CommentSection
                     postId={selectedPost._id}
                     username={username}
+                    isVisible={showComments}
                   />
                 </Modal.Body>
               </>
