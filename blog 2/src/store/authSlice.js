@@ -6,7 +6,6 @@ const initialState = {
   isAuthenticated:
     localStorage.getItem("isAuthenticated") === "true" ? true : false, // Load from localStorage
   username: "-",
-  email: "-",
   userid: 0,
   loading: false,
   error: null,

@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "react-quill/dist/quill.snow.css";
 
 const BlogPostCreator = () => {
-  const { username, userid } = useSelector((state) => state.auth);
+  const { username } = useSelector((state) => state.auth);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
@@ -38,8 +38,6 @@ const BlogPostCreator = () => {
       timestamp: new Date().toISOString(),
       date: new Date().toLocaleDateString(),
       tags: tags.split(",").map((tag) => tag.trim()),
-      userId: userid, // Add user ID to the blog post
-      author: username, // Optionally add username as author
     };
 
     try {

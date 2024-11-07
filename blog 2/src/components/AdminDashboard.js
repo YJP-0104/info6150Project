@@ -135,7 +135,7 @@ const AdminDashboard = () => {
               <th>ID</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Password</th> 
+              <th>Password</th> {/* Added Password Column */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -144,9 +144,9 @@ const AdminDashboard = () => {
               users.map((user) => (
                 <tr key={user._id}>
                   <td>{user._id}</td>
-                  <td>{user.user || "N/A"}</td> 
+                  <td>{user.user || "N/A"}</td> {/* Display Name */}
                   <td>{user.email}</td>
-                  <td>{user.pass || "N/A"}</td> 
+                  <td>{user.pass || "N/A"}</td> {/* Display Password */}
                   <td>
                     <Button
                       variant="warning"

@@ -13,18 +13,16 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
+import CommentSection from "./Comment"; // Import the CommentSection component
 
 const Home = () => {
-  const [posts, setposts] = useState([]);
+  const [posts, setPosts] = useState([]);
   const user = useSelector((state) => state.auth);
   const { username } = useSelector((state) => state.auth);
-  const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("all");
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [comment, setComment] = useState("");
-  const [comments, setComments] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
   const modules = {
@@ -36,19 +34,17 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchposts();
-    fetchUsers();
+    fetchPosts();
   }, [filter]);
 
-  const fetchposts = async () => {
+  const fetchPosts = async () => {
     try {
       const response = await fetch(
         "http://smooth-comfort-405104.uc.r.appspot.com/document/findAll/blogs",
         {
           method: "GET",
           headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
+            Authorization: process.env.REACT_APP_AUTH_TOKEN,
             "Content-Type": "application/json",
           },
         }
@@ -56,18 +52,16 @@ const Home = () => {
 
       const result = await response.json();
       const fetchedPosts = result.data || [];
-
-      // Sort posts by timestamp in descending order (latest first)
       fetchedPosts.sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
-
-      setposts(fetchedPosts);
+      setPosts(fetchedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
-      setposts([]);
+      setPosts([]);
     }
   };
+
   useEffect(() => {
     filterPosts();
   }, [posts, searchQuery, filter]);
@@ -89,6 +83,7 @@ const Home = () => {
 
     setFilteredPosts(filtered);
   };
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -101,90 +96,9 @@ const Home = () => {
     }
   };
 
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch(
-        "http://smooth-comfort-405104.uc.r.appspot.com/document/findAll/users",
-        {
-          method: "GET",
-          headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const result = await response.json();
-      setUsers(result.data || []);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  const fetchComments = async (postId) => {
-    try {
-      const response = await fetch(
-        `http://smooth-comfort-405104.uc.r.appspot.com/document/findOne/comments/${postId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
-          },
-        }
-      );
-      const result = await response.json();
-      setComments({ ...comments, [postId]: result.data || [] });
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    }
-  };
-
-  const stripHtmlTags = (html) => {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    return doc.body.textContent || "";
-  };
-
-  const cleanContent = stripHtmlTags(comment);
-
-  const handleComment = async (postId) => {
-    try {
-      const commentData = {
-        postId,
-        content: cleanContent,
-        username: username,
-        timestamp: new Date().toISOString(),
-      };
-
-      const response = await fetch(
-        "http://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/comments",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
-          },
-          body: JSON.stringify(commentData),
-        }
-      );
-
-      if (response.ok) {
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postId]: [...(prevComments[postId] || []), commentData],
-        }));
-        setComment("");
-      }
-    } catch (error) {
-      console.error("Error posting comment:", error);
-    }
-  };
-
   const handleShowPost = (post) => {
     setSelectedPost(post);
     setShowModal(true);
-    fetchComments(post._id);
   };
 
   return (
@@ -192,15 +106,14 @@ const Home = () => {
       <Row className="justify-content-center mb-4">
         <Col md={8}>
           <div className="mb-4">
-            <h3 className="mb-3">Community Posts</h3>{" "}
-            {/* Moved the title above */}
+            <h3 className="mb-3">Community Posts</h3>
             <div className="d-flex justify-content-between align-items-center">
               <Form.Control
                 type="text"
                 placeholder="Search by keyword..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-100" // Makes search bar full-width
+                className="w-100"
               />
             </div>
           </div>
@@ -268,38 +181,11 @@ const Home = () => {
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <h6>Comments:</h6>
-                    {comments[selectedPost._id]?.length > 0 ? (
-                      comments[selectedPost._id].map((comment, index) => (
-                        <div className="mb-3" key={index}>
-                          <strong>{comment.username}:</strong>{" "}
-                          <span>{comment.content}</span>
-                          <br />
-                          <small className="text-muted">
-                            {formatDate(comment.timestamp)}
-                          </small>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted">No comments yet.</p>
-                    )}
-                  </div>
-                  <Form.Control
-                    as={ReactQuill}
-                    modules={modules}
-                    value={comment}
-                    onChange={(content) => setComment(content)}
-                    className="my-2"
-                    placeholder="Add a comment..."
+                  {/* Integrate the new CommentSection here */}
+                  <CommentSection
+                    postId={selectedPost._id}
+                    username={username}
                   />
-                  <Button
-                    variant="primary"
-                    onClick={() => handleComment(selectedPost._id)}
-                    disabled={!comment.trim()}
-                  >
-                    Comment
-                  </Button>
                 </Modal.Body>
               </>
             )}

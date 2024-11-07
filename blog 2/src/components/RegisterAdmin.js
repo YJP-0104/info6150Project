@@ -11,7 +11,7 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Register = () => {
+const RegisterAdmin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [Email, setEmail] = useState("");
@@ -26,7 +26,7 @@ const Register = () => {
 
   const isStrongPassword = (password) => {
     const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return strongPasswordRegex.test(password);
   };
 
@@ -58,7 +58,7 @@ const Register = () => {
 
     try {
       const response = await fetch(
-        "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/users",
+        "https://smooth-comfort-405104.uc.r.appspot.com/document/createorupdate/admin",
         {
           method: "POST",
           headers: {
@@ -89,7 +89,7 @@ const Register = () => {
           <Card className="shadow-sm">
             <Card.Body>
               <Card.Title className="text-center mb-4">
-                <h2>Register</h2>
+                <h2>Register Admin</h2>
               </Card.Title>
 
               {error && (
@@ -156,4 +156,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterAdmin;

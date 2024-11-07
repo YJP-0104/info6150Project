@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { validateLogin } from "../Store/authSliceThunk";
+import { validateLogin } from "../store/authSliceThunk";
 import {
   Form,
   Button,
@@ -25,7 +25,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -43,13 +42,13 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/posts");
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
-  // const handleForgotPassword = () => {
-  //   setShowModal(true);
-  // };
+  const handleForgotPassword = () => {
+    setShowModal(true);
+  };
 
   const handleUpdatePassword = async () => {
     if (newPassword.length < 8) {
@@ -121,20 +120,7 @@ const Login = () => {
                     required
                   />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label className="d-flex align-items-center">
-                    <PersonFill className="me-2" />
-                    Email
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter your username"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </Form.Group>
+
                 <Form.Group className="mb-4">
                   <Form.Label className="d-flex align-items-center">
                     <LockFill className="me-2" />
@@ -184,13 +170,13 @@ const Login = () => {
                 </div>
 
                 <div className="text-center mt-4">
-                  {/* <Button
+                  <Button
                     variant="link"
                     className="p-0 ms-1"
                     onClick={handleForgotPassword}
                   >
                     Forgot Password?
-                  </Button> */}
+                  </Button>
                 </div>
               </Form>
 

@@ -11,7 +11,6 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const [posts, setposts] = useState([]);
