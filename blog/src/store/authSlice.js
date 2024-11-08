@@ -10,6 +10,11 @@ const initialState = {
   token: localStorage.getItem("token") || null,
   loading: false,
   error: null,
+  passwordReset: {
+    loading: false,
+    error: null,
+    success: false,
+  },
 };
 
 const authSlice = createSlice({
@@ -25,6 +30,19 @@ const authSlice = createSlice({
       localStorage.removeItem("username");
       localStorage.removeItem("userid");
       localStorage.removeItem("token");
+    },
+    resetPasswordStart: (state) => {
+      state.passwordReset.loading = true;
+      state.passwordReset.error = null;
+      state.passwordReset.success = false;
+    },
+    resetPasswordSuccess: (state) => {
+      state.passwordReset.loading = false;
+      state.passwordReset.success = true;
+    },
+    resetPasswordFailure: (state, action) => {
+      state.passwordReset.loading = false;
+      state.passwordReset.error = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -51,5 +69,10 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const {
+  logout,
+  resetPasswordStart,
+  resetPasswordSuccess,
+  resetPasswordFailure,
+} = authSlice.actions;
 export default authSlice.reducer;

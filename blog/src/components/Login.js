@@ -19,27 +19,30 @@ import {
   LockFill,
   EyeFill,
   EyeSlashFill,
+  EnvelopeFill,
 } from "react-bootstrap-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+
+  // Reset Password States
+  const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
+  const [resetErrors, setResetErrors] = useState({});
+  const [resetLoading, setResetLoading] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, isAuthenticated, userId, user } = useSelector(
+  const { loading, error, isAuthenticated } = useSelector(
     (state) => state.auth
   );
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(validateLogin({ username, password }));
-  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -47,43 +50,98 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // const handleForgotPassword = () => {
-  //   setShowModal(true);
-  // };
+  const handleLogin = (e) => {
+    e.preventDefault();
+    dispatch(validateLogin({ username, password }));
+  };
 
-  const handleUpdatePassword = async () => {
-    if (newPassword.length < 8) {
-      alert("Password must be at least 8 characters long.");
-      return;
+  const validateResetForm = () => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(resetEmail)) {
+      newErrors.email = "Please enter a valid email address";
     }
-    try {
-      const response = await fetch(
-        `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/users/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTg5ZDc2Y2FhNWVjNzQ5NDQxMThkOSIsInVzZXJuYW1lIjoicGF0ZWwueWFzaGphdEBub3J0aGVhc3Rlcm4uZWR1IiwiaWF0IjoxNzI5NjY2NDI3LCJleHAiOjE3MzE4MjY0Mjd9.d9_Q65-MRp4DvouWtDKfmmtoenz7fSnUOQfW3LpIU-I",
-          },
-          body: JSON.stringify({
-            username,
-            password: newPassword,
-          }),
+    if (newPassword.length < 6) {
+      newErrors.newPassword = "Password must be at least 6 characters long";
+    }
+    if (newPassword !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setResetErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+
+    if (validateResetForm()) {
+      setResetLoading(true);
+      setResetMessage("");
+
+      try {
+        const fetchResponse = await fetch(
+          "https://smooth-comfort-405104.uc.r.appspot.com/document/findALL/users",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            },
+          }
+        );
+
+        const data = await fetchResponse.json();
+
+        if (!fetchResponse.ok || data.status !== "success") {
+          throw new Error("Error fetching user data");
         }
-      );
-      const data = await response.json();
 
-      if (response.ok) {
-        setShowModal(false);
-        alert("Password updated successfully.");
-      } else {
-        alert(data.message || "Error updating password.");
+        const user = data.data.find((user) => user.email === resetEmail);
+
+        if (!user) {
+          setResetMessage("No user found with that email address");
+          return;
+        }
+
+        const updateResponse = await fetch(
+          `https://smooth-comfort-405104.uc.r.appspot.com/document/updateOne/users/${user._id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `${process.env.REACT_APP_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({ pass: newPassword }),
+          }
+        );
+
+        const updateData = await updateResponse.json();
+
+        if (updateResponse.ok && updateData.status === "success") {
+          setResetMessage("Password has been successfully updated");
+          setTimeout(() => {
+            setShowResetModal(false);
+            resetForm();
+          }, 2000);
+        } else {
+          throw new Error("Error updating password");
+        }
+      } catch (error) {
+        setResetMessage("Error updating password. Please try again");
+      } finally {
+        setResetLoading(false);
       }
-    } catch (error) {
-      console.error("Error updating password:", error);
-      alert("There was a problem updating your password.");
     }
+  };
+
+  const resetForm = () => {
+    setResetEmail("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetMessage("");
+    setResetErrors({});
   };
 
   return (
@@ -100,13 +158,13 @@ const Login = () => {
               </div>
 
               {error && (
-                <Alert variant="danger" className="mb-4">
+                <Alert variant="danger">
                   <Alert.Heading className="h6">Login Error</Alert.Heading>
                   {error}
                 </Alert>
               )}
 
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleLogin}>
                 <Form.Group className="mb-3">
                   <Form.Label className="d-flex align-items-center">
                     <PersonFill className="me-2" />
@@ -121,20 +179,7 @@ const Login = () => {
                     required
                   />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label className="d-flex align-items-center">
-                    <PersonFill className="me-2" />
-                    Email
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter your username"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </Form.Group>
+
                 <Form.Group className="mb-4">
                   <Form.Label className="d-flex align-items-center">
                     <LockFill className="me-2" />
@@ -158,7 +203,7 @@ const Login = () => {
                   </InputGroup>
                 </Form.Group>
 
-                <div className="d-grid">
+                <div className="d-grid gap-2">
                   <Button
                     variant="primary"
                     type="submit"
@@ -171,8 +216,6 @@ const Login = () => {
                           as="span"
                           animation="border"
                           size="sm"
-                          role="status"
-                          aria-hidden="true"
                           className="me-2"
                         />
                         Logging in...
@@ -181,63 +224,110 @@ const Login = () => {
                       "Login"
                     )}
                   </Button>
-                </div>
-
-                <div className="text-center mt-4">
-                  {/* <Button
+                  <Button
                     variant="link"
-                    className="p-0 ms-1"
-                    onClick={handleForgotPassword}
+                    onClick={() => setShowResetModal(true)}
+                    disabled={loading}
                   >
                     Forgot Password?
-                  </Button> */}
+                  </Button>
                 </div>
               </Form>
-
-              <Modal show={showModal} onHide={() => setShowModal(false)}>
-                <Modal.Header closeButton>
-                  <Modal.Title>Update Password</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control type="text" value={username} disabled />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      value={user?.email || ""}
-                      disabled
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>New Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      placeholder="Enter new password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                    />
-                  </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Close
-                  </Button>
-                  <Button variant="primary" onClick={handleUpdatePassword}>
-                    Update Password
-                  </Button>
-                </Modal.Footer>
-              </Modal>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+
+      {/* Reset Password Modal */}
+      <Modal show={showResetModal} onHide={() => setShowResetModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Reset Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {resetMessage && (
+            <Alert
+              variant={
+                resetMessage.includes("successfully") ? "success" : "danger"
+              }
+            >
+              {resetMessage}
+            </Alert>
+          )}
+          <Form onSubmit={handlePasswordReset}>
+            <Form.Group className="mb-3">
+              <Form.Label className="d-flex align-items-center">
+                <EnvelopeFill className="me-2" />
+                Email
+              </Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter your email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                isInvalid={!!resetErrors.email}
+                disabled={resetLoading}
+              />
+              <Form.Control.Feedback type="invalid">
+                {resetErrors.email}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label className="d-flex align-items-center">
+                <LockFill className="me-2" />
+                New Password
+              </Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                isInvalid={!!resetErrors.newPassword}
+                disabled={resetLoading}
+              />
+              <Form.Control.Feedback type="invalid">
+                {resetErrors.newPassword}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label className="d-flex align-items-center">
+                <LockFill className="me-2" />
+                Confirm Password
+              </Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                isInvalid={!!resetErrors.confirmPassword}
+                disabled={resetLoading}
+              />
+              <Form.Control.Feedback type="invalid">
+                {resetErrors.confirmPassword}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <div className="d-grid">
+              <Button variant="primary" type="submit" disabled={resetLoading}>
+                {resetLoading ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      className="me-2"
+                    />
+                    Updating Password...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </Container>
   );
 };

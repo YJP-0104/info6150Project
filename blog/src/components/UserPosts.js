@@ -23,23 +23,18 @@ const BlogPostCreator = () => {
       ["clean"],
     ],
   };
-  const stripHtmlTags = (html) => {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    return doc.body.textContent || "";
-  };
-  const cleanContent = stripHtmlTags(content);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const blogPost = {
       title,
-      content: cleanContent,
+      content: content, // Store the raw HTML content directly
       timestamp: new Date().toISOString(),
       date: new Date().toLocaleDateString(),
       tags: tags.split(",").map((tag) => tag.trim()),
-      userId: userid, // Add user ID to the blog post
-      author: username, // Optionally add username as author
+      userId: userid,
+      author: username,
     };
 
     try {
@@ -104,6 +99,7 @@ const BlogPostCreator = () => {
                     style={{ height: "300px", marginBottom: "50px" }}
                   />
                 </Form.Group>
+
                 <Form.Group className="mb-4">
                   <Form.Label>Tags</Form.Label>
                   <Form.Control
@@ -117,6 +113,7 @@ const BlogPostCreator = () => {
                     Separate tags with commas to help categorize your post
                   </Form.Text>
                 </Form.Group>
+
                 <Button
                   variant="primary"
                   type="submit"
